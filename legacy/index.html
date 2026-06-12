@@ -1,0 +1,185 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>规格书生成系统</title>
+    <link rel="stylesheet" href="./styles.css" />
+  </head>
+  <body>
+    <main class="app-shell">
+      <aside class="editor-panel" aria-label="规格书编辑面板">
+        <div class="panel-header">
+          <p class="eyebrow">Data Sheet Builder</p>
+          <h1>规格书生成系统</h1>
+          <p class="panel-note">录入产品参数后，右侧会实时生成可打印的双页规格书。</p>
+        </div>
+
+        <div class="tabs" role="tablist" aria-label="编辑区域">
+          <button class="tab-button active" type="button" data-tab="basic">基础</button>
+          <button class="tab-button" type="button" data-tab="content">内容</button>
+          <button class="tab-button" type="button" data-tab="media">图片</button>
+          <button class="tab-button" type="button" data-tab="modules">模块</button>
+          <button class="tab-button" type="button" data-tab="history">历史</button>
+        </div>
+
+        <div class="rich-toolbar" aria-label="富文本工具栏">
+          <select id="fontFamilyControl" title="字体">
+            <option value="Arial">Arial</option>
+            <option value="Microsoft YaHei">微软雅黑</option>
+            <option value="SimSun">宋体</option>
+            <option value="SimHei">黑体</option>
+            <option value="Times New Roman">Times</option>
+          </select>
+          <select id="fontSizeControl" title="字号">
+            <option value="2">小</option>
+            <option value="3" selected>正文</option>
+            <option value="4">中</option>
+            <option value="5">大</option>
+            <option value="6">标题</option>
+          </select>
+          <label class="color-tool" title="文字颜色">色<input id="fontColorControl" type="color" value="#111318" /></label>
+          <button type="button" data-command="bold" title="加粗">B</button>
+          <button type="button" data-command="italic" title="斜体"><i>I</i></button>
+          <button type="button" data-command="underline" title="下划线"><u>U</u></button>
+          <button type="button" data-command="insertUnorderedList" title="项目符号">•</button>
+          <button type="button" data-command="removeFormat" title="清除格式">Tx</button>
+        </div>
+
+        <section class="tab-panel active" data-panel="basic">
+          <label>
+            产品标题
+            <input id="productTitle" type="text" />
+          </label>
+          <label>
+            英文公司名
+            <input id="companyEn" type="text" />
+          </label>
+          <label>
+            中文公司名
+            <input id="companyCn" type="text" />
+          </label>
+          <div class="field-grid">
+            <label>
+              日期
+              <input id="docDate" type="text" />
+            </label>
+            <label>
+              版本
+              <input id="docVersion" type="text" />
+            </label>
+          </div>
+          <label>
+            规格书标题
+            <input id="sheetTitle" type="text" />
+          </label>
+        </section>
+
+        <section class="tab-panel" data-panel="content">
+          <label>
+            产品特性，每行一条
+            <textarea id="featuresInput" rows="8"></textarea>
+          </label>
+          <p class="panel-note">右侧预览区域内的标题、特性、表格单元格和页脚都可以直接点击编辑，并支持上方富文本按钮。</p>
+          <label>
+            规格信息 JSON
+            <textarea id="specsInput" rows="12" spellcheck="false"></textarea>
+          </label>
+          <label>
+            订购信息 JSON
+            <textarea id="orderingInput" rows="9" spellcheck="false"></textarea>
+          </label>
+        </section>
+
+        <section class="tab-panel" data-panel="media">
+          <label>
+            产品主图
+            <input id="heroImage" type="file" accept="image/*" />
+          </label>
+          <label>
+            尺寸图
+            <input id="dimensionImage" type="file" accept="image/*" />
+          </label>
+          <label>
+            接口图
+            <input id="interfaceImage" type="file" accept="image/*" />
+          </label>
+          <label>
+            追加产品图库，可多选
+            <input id="galleryImages" type="file" accept="image/*" multiple />
+          </label>
+          <p class="panel-note">未上传图片时会使用内置示意图。多选图库图片后，会自动新增或更新“产品图片库”模块。</p>
+        </section>
+
+        <section class="tab-panel" data-panel="modules">
+          <div class="module-actions">
+            <button class="secondary-button" type="button" id="addRichModule">新增富文本模块</button>
+            <button class="secondary-button" type="button" id="addGalleryModule">新增图片模块</button>
+            <button class="secondary-button" type="button" id="addSpecModule">新增属性表模块</button>
+            <button class="secondary-button" type="button" id="addTableModule">新增对比表模块</button>
+          </div>
+          <label>
+            扩展模块 JSON
+            <textarea id="modulesInput" rows="16" spellcheck="false"></textarea>
+          </label>
+          <p class="panel-note">每个扩展模块会生成独立页面。右侧模块内容仍可直接富文本编辑，模块右上角可上移、下移、删除。</p>
+        </section>
+
+        <section class="tab-panel" data-panel="history">
+          <label>
+            文档名称
+            <input id="documentTitle" type="text" />
+          </label>
+          <div class="module-actions">
+            <button class="primary-button" type="button" id="saveDocumentButton">保存当前</button>
+            <button class="secondary-button" type="button" id="saveAsDocumentButton">另存为新文档</button>
+            <button class="secondary-button" type="button" id="refreshDocumentsButton">刷新历史</button>
+          </div>
+          <label>
+            历史规格书
+            <select id="documentList" size="6"></select>
+          </label>
+          <div class="module-actions">
+            <button class="secondary-button" type="button" id="loadDocumentButton">打开选中文档</button>
+          </div>
+          <label>
+            版本名称
+            <input id="versionName" type="text" placeholder="例如：客户A确认版" />
+          </label>
+          <div class="module-actions">
+            <button class="secondary-button" type="button" id="saveVersionButton">保存为历史版本</button>
+          </div>
+          <label>
+            当前文档版本
+            <select id="versionList" size="5"></select>
+          </label>
+          <div class="module-actions">
+            <button class="secondary-button" type="button" id="loadVersionButton">打开选中版本</button>
+          </div>
+          <p class="panel-note">保存会记录当前所有编辑状态，包括图片缩放、位置、背景和扩展模块。</p>
+        </section>
+
+        <div class="actions">
+          <button class="primary-button" type="button" id="printButton">打印 / 导出 PDF</button>
+          <button class="secondary-button" type="button" id="resetButton">恢复示例</button>
+          <button class="secondary-button" type="button" id="downloadJsonButton">下载 JSON</button>
+        </div>
+        <input id="imageReplaceInput" type="file" accept="image/*" hidden />
+      </aside>
+
+      <section class="preview-panel" aria-label="规格书预览">
+        <div class="preview-toolbar">
+          <div>
+            <p class="eyebrow">Live Preview</p>
+            <h2>生成预览</h2>
+          </div>
+          <span id="statusText">已同步</span>
+        </div>
+
+        <div id="sheetPreview" class="sheet-stack"></div>
+      </section>
+    </main>
+
+    <script src="./app.js"></script>
+  </body>
+</html>
