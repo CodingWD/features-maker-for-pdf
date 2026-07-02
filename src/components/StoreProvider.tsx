@@ -20,6 +20,8 @@ interface AppContextType {
   setIsDirty: (dirty: boolean) => void;
   currentDocumentId: number | null;
   setCurrentDocumentId: (id: number | null) => void;
+  selectedCanvasId: string | null;
+  setSelectedCanvasId: (id: string | null) => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -27,6 +29,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export function AppProvider({ children }: { children: ReactNode }) {
   const [lang, setLangState] = useState<"en" | "zh">("zh");
   const [currentDocumentId, setCurrentDocumentId] = useState<number | null>(null);
+  const [selectedCanvasId, setSelectedCanvasId] = useState<string | null>(null);
   const [isDirty, setIsDirty] = useState(false);
   const [statusText, setStatusText] = useState("已同步");
   const [db, setDb] = useState<{ en: DataSheetState; zh: DataSheetState }>({
@@ -150,6 +153,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
         setIsDirty,
         currentDocumentId,
         setCurrentDocumentId,
+        selectedCanvasId,
+        setSelectedCanvasId,
       }}
     >
       {children}

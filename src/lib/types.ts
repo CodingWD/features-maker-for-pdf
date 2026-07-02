@@ -67,7 +67,7 @@ export interface DataSheetState {
   specs: SpecRow[];
   ordering: OrderingTable;
   images: {
-    hero: ImageObject;
+    hero: ImageObject | ImageObject[] | string;
     dimension: ImageObject | ImageObject[] | string;
     interface: ImageObject | ImageObject[] | string;
   };

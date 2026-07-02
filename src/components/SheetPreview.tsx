@@ -187,7 +187,7 @@ export default function SheetPreview() {
       </div>
     );
   };
-
+// 分页表格分页功能，正常的将表格分页成多页
   const splitSpecsForPages = () => {
     const specs = Array.isArray(state.specs) ? state.specs : [];
     const pages: SpecPageGroup[][] = [];

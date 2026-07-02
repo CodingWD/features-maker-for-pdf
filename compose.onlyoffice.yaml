@@ -1,0 +1,21 @@
+services:
+  app:
+    environment:
+      NEXT_PUBLIC_ONLYOFFICE_DOCUMENT_SERVER_URL: "${ONLYOFFICE_PUBLIC_URL:-http://localhost:8080}"
+      NEXT_PUBLIC_APP_PUBLIC_URL: "http://app:3000"
+
+  onlyoffice:
+    image: onlyoffice/documentserver:latest
+    container_name: datasheet-onlyoffice
+    restart: unless-stopped
+    ports:
+      - "${ONLYOFFICE_PORT:-8080}:80"
+    environment:
+      JWT_ENABLED: "false"
+    volumes:
+      - onlyoffice_data:/var/www/onlyoffice/Data
+      - onlyoffice_logs:/var/log/onlyoffice
+
+volumes:
+  onlyoffice_data:
+  onlyoffice_logs:

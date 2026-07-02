@@ -14,6 +14,7 @@ const eslintConfig = defineConfig([
     "next-env.d.ts",
     "fix_editable.js",
     "fix_editable2.js",
+    "tools/**",
   ]),
   {
     rules: {

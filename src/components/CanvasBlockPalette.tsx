@@ -13,6 +13,10 @@ const canvasBlocks: { type: CanvasElement["type"]; label: string }[] = [
 ];
 
 export default function CanvasBlockPalette() {
+  const addBlock = (type: CanvasElement["type"]) => {
+    window.dispatchEvent(new CustomEvent("canvas:add-block", { detail: type }));
+  };
+
   return (
     <div className="space-y-2">
       <Label>画布模块</Label>
@@ -26,13 +30,14 @@ export default function CanvasBlockPalette() {
               event.dataTransfer.setData("application/x-canvas-block", block.type);
               event.dataTransfer.effectAllowed = "copy";
             }}
+            onClick={() => addBlock(block.type)}
             className="rounded-md border bg-background px-3 py-2 text-left text-xs font-medium hover:border-primary hover:bg-muted"
           >
             {block.label}
           </button>
         ))}
       </div>
-      <p className="text-[11px] text-muted-foreground">拖到右侧画布后，可选中移动、缩放或删除。</p>
+      <p className="text-[11px] text-muted-foreground">可点击添加到当前可见页面，也可拖到右侧画布指定位置。</p>
     </div>
   );
 }

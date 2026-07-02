@@ -2,18 +2,19 @@ import { DatabaseSync } from "node:sqlite";
 import { join } from "path";
 import { existsSync, mkdirSync } from "fs";
 
-const dataDir = join(process.cwd(), "data");
+const dataDir = process.env.DATA_DIR || join(process.cwd(), "data");
 const dbPath = join(dataDir, "datasheets.sqlite");
 
-if (!existsSync(dataDir)) {
-  mkdirSync(dataDir, { recursive: true });
-}
+let db: DatabaseSync | undefined;
 
-let db: DatabaseSync;
+function initializeDb() {
+  if (!existsSync(dataDir)) {
+    mkdirSync(dataDir, { recursive: true });
+  }
 
-try {
-  db = new DatabaseSync(dbPath);
-  db.exec(`
+  const nextDb = new DatabaseSync(dbPath);
+  nextDb.exec("PRAGMA busy_timeout = 5000; PRAGMA foreign_keys = ON;");
+  nextDb.exec(`
     CREATE TABLE IF NOT EXISTS documents (
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       title TEXT NOT NULL,
@@ -32,10 +33,10 @@ try {
       FOREIGN KEY (document_id) REFERENCES documents(id) ON DELETE CASCADE
     );
   `);
-} catch (error) {
-  console.error("Failed to initialize database:", error);
+  db = nextDb;
+  return nextDb;
 }
 
 export function getDb() {
-  return db;
+  return db || initializeDb();
 }

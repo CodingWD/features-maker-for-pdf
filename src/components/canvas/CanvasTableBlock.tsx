@@ -14,6 +14,9 @@ type CanvasTableBlockProps = {
   element: CanvasElement;
   table: CanvasTableData;
   style: CSSProperties;
+  canvasId?: string;
+  rowOffset?: number;
+  isSelected?: boolean;
   onSelect: () => void;
   onHeaderChange: (colIndex: number, value: string) => void;
   onCellChange: (rowIndex: number, colIndex: number, value: string) => void;
@@ -25,6 +28,9 @@ export default function CanvasTableBlock({
   element,
   table,
   style,
+  canvasId,
+  rowOffset = 0,
+  isSelected,
   onSelect,
   onHeaderChange,
   onCellChange,
@@ -32,10 +38,25 @@ export default function CanvasTableBlock({
   onRowResizeStart,
 }: CanvasTableBlockProps) {
   const columnWidths = table.columnWidths || table.columns.map(() => 96);
-  const rowHeights = table.rowHeights || table.rows.map(() => 36);
+  const estimateCellLines = (value: string, columnWidth: number) => {
+    const charsPerLine = Math.max(4, Math.floor(columnWidth / 8));
+    return (value || "")
+      .split(/\n/)
+      .reduce((total, line) => total + Math.max(1, Math.ceil(Array.from(line).length / charsPerLine)), 0);
+  };
+  const rowHeights = table.rows.map((row, rowIndex) => {
+    const maxLines = Math.max(1, ...row.map((cell, colIndex) => estimateCellLines(cell || "", columnWidths[colIndex] || 96)));
+    return Math.max(table.rowHeights?.[rowIndex] || 0, maxLines * 18 + 20, 36);
+  });
 
   return (
-    <div className="canvas-element canvas-table-wrap" data-canvas-id={element.id} style={style} onMouseDown={onSelect}>
+    <div
+      className="canvas-element canvas-table-wrap"
+      data-canvas-id={canvasId || element.id}
+      data-selected={isSelected ? "true" : undefined}
+      style={style}
+      onMouseDown={onSelect}
+    >
       <table className="data-table canvas-table">
         <colgroup>
           {table.columns.map((_, colIndex) => (
@@ -65,20 +86,20 @@ export default function CanvasTableBlock({
         <tbody>
           {table.rows.map((row, rowIndex) => (
             <tr key={rowIndex} style={{ height: rowHeights[rowIndex] || 36 }}>
-              {row.map((cell, colIndex) => (
+              {table.columns.map((_, colIndex) => (
                 <td
                   key={colIndex}
                   className="canvas-table-cell"
                   contentEditable
                   suppressContentEditableWarning
-                  onBlur={(event) => onCellChange(rowIndex, colIndex, event.currentTarget.innerText)}
+                  onBlur={(event) => onCellChange(rowOffset + rowIndex, colIndex, event.currentTarget.innerText)}
                 >
-                  {cell}
+                  {row[colIndex] || ""}
                   {colIndex === 0 && (
                     <span
                       className="canvas-row-resize-handle"
                       contentEditable={false}
-                      onMouseDown={(event) => onRowResizeStart(event, rowIndex)}
+                      onMouseDown={(event) => onRowResizeStart(event, rowOffset + rowIndex)}
                     />
                   )}
                 </td>
